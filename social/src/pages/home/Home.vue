@@ -1,12 +1,27 @@
 <template>
-	<div class="">
-        <h2>Sociaaal</h2>
-    </div>
+  <card-conteudo-vue perfil="https://materializecss.com/images/yuna.jpg" 
+		nome="Maria Joana" 
+		data="29/12/18 22:00"
+	>
+		<div class="card-image">
+			<img src="https://materializecss.com/images/sample-1.jpg">
+				<span class="card-title">Card Title</span>
+		</div>
+		<div class="card-content">
+			<p>I am a very simple card. I am good at containing small bits of information.
+			I am convenient because I require little markup to use effectively.</p>
+		</div>
+	</card-conteudo-vue>
 </template>
 
 <script>
+import CardConteudoVue from '@/components/social/CardConteudoVue';
+
 export default {
-  	name: 'Home',
+    name: 'Home',
+    components: {
+      CardConteudoVue
+    },
   	data () {
     	return {
       		msg: 'Welcome to Your Vue.js App'
