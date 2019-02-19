@@ -14,7 +14,7 @@
         <div class="file-field input-field">
           <div class="btn">
             <span>Imagem</span>
-            <input type="file">
+            <input type="file" v-on:change="salvarImagem">
           </div>
           <div class="file-path-wrapper">
             <input class="file-path validate" type="text">
@@ -23,8 +23,7 @@
 
         <input type="password" placeholder="Senha" v-model="password">
         <input type="password" placeholder="Confirme sua senha" v-model="password_confirmation">
-        <button class="btn" v-on:click="perfil()">Atualizar</button>
-        <router-link class="btn orange" to="/login">Já tenho conta</router-link>
+        <button class="btn" v-on:click="atualizarPerfil()">Atualizar</button>
 
     </span>
   </site-template>
@@ -43,48 +42,58 @@ export default {
       name: '',
       email: '',
       password: '',
-      password_confirmation: ''
+      password_confirmation: '',
+      imagem: ''
     }
   },
   created() {
-    console.log("created()")
     let usuarioAux = sessionStorage.getItem('usuario')
     if (usuarioAux) {
       this.usuario = JSON.parse(usuarioAux);
       this.name = this.usuario.name;
       this.email = this.usuario.email;
-      this.password = this.usuario.password;
     }
   },
   components: {
     SiteTemplate
   },
   methods: {
-    perfil() {
-      axios.post('http://127.0.0.1:8000/api/perfil', {
+    salvarImagem(e) {
+      let arquivo = e.target.files || e.dataTransfer.files;
+      
+      if (!arquivo.length) {
+        return;
+      }
+
+      let reader = new FileReader();
+      reader.onloadend = (e) => {
+        this.imagem = e.target.result;
+      };
+      reader.readAsDataURL(arquivo[0]);
+    },
+
+    atualizarPerfil() {
+      axios.put('http://127.0.0.1:8000/api/perfil', {
         name: this.name,
         email: this.email,
+        imagem: this.imagem,
         password: this.password,
         password_confirmation: this.password_confirmation
-      })
+      },{"headers":{"authorization":"Bearer " +this.usuario.token}})
       .then(response => {
         if (response.data.token) {
-          console.log('Cadastro realizado com sucesso')
-          sessionStorage.setItem('usuario', JSON.stringify(response.data))
-          this.$router.push('/')
-        
-        } else if (response.data.status == false) {
-          alert('Erro ao cadastrar! Tente novamente.')
+          console.log(response.data);
+          sessionStorage.setItem('usuario', JSON.stringify(response.data));
+          alert("Perfil atualizado!");
         
         } else {
-          console.log('erros de validação')
+          console.log("Erros de validação");
           let erros = '';
           for (let erro of Object.values(response.data)) {
             erros += erro + " ";
           }
           alert(erros);
-        }
-        console.log(response)
+        }  
       })
       .catch(error => {
         console.log(error);

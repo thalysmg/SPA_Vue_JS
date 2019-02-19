@@ -48,7 +48,7 @@ export default {
       .then(response => {
         if (response.data.token) {
           console.log('Cadastro realizado com sucesso')
-          sessionStorage.setItem('usuario', JSON.stringify(response.data))
+          sessionStorage.setItem('usuario', JSON.stringify(response.data));
           this.$router.push('/')
         
         } else if (response.data.status == false) {

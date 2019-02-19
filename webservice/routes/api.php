@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -59,4 +60,43 @@ Route::post('/login', function (Request $request) {
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::middleware('auth:api')->put('/perfil', function (Request $request) {
+    $user = $request->user();
+    $data = $request->all();
+
+    if (isset($data['password'])) {
+        $validacao = Validator::make($data, [
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+        if ($validacao->fails()) {
+            return $validacao->errors();
+        }
+        $user->password = bcrypt($data['password']);
+    
+    } else {
+        $validacao = Validator::make($data, [
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+        ]);
+        if ($validacao->fails()) {
+            return $validacao->errors();
+        }
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+    }
+    
+    if (isset($data['imagem'])) {
+        $time = time();
+        $diretorioPai = 'perfils';
+        $diretorioImagem = $diretorioPai.DIRECTORY_SEPARATOR.'perfil_id'.$user->id;
+    }
+
+    $user->save();
+
+    $user->token = $user->createToken($user->email)->accessToken;
+    return $user;
 });
