@@ -2,7 +2,7 @@
   <site-template>
     
     <span slot="menu-esquerdo">
-      <img src="http://www.twccomunicacao.com.br/restrito/img/blog/29f464ef386c0c4c08f5e7fc5103d29e.png" class="responsive-img">
+      <img v-bind:src="usuario.imagem" class="responsive-img">
     </span>
 
     <span slot="principal">
@@ -83,6 +83,7 @@ export default {
       .then(response => {
         if (response.data.token) {
           console.log(response.data);
+          this.usuario = response.data;
           sessionStorage.setItem('usuario', JSON.stringify(response.data));
           alert("Perfil atualizado!");
         
