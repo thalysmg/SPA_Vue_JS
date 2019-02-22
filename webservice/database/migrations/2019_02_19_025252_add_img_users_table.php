@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddUsersRegistrationInfo extends Migration
+class AddImgUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,11 +14,7 @@ class AddUsersRegistrationInfo extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('endereco')->default('');
-            $table->string('cidade')->default('');
-            $table->string('estado')->default('');
-            $table->string('pais')->default('');
-            $table->string('telefone')->default('');
+            $table->string('imagem')->nullable();
         });
     }
 
@@ -29,6 +25,8 @@ class AddUsersRegistrationInfo extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('imagem');
+        });
     }
 }
