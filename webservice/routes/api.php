@@ -3,7 +3,6 @@
 use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,6 +20,11 @@ Route::post('/cadastro', function (Request $request) {
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:6|confirmed',
+        'endereco' => 'required|string|max:255',
+        'cidade' => 'required|string|max:100',
+        'estado' => 'required|string|max:100',
+        'pais' => 'required|string|max:100',
+        'telefone' => 'required|string|max:12',
     ]);
 
     if ($validacao->fails()) {
@@ -31,6 +35,11 @@ Route::post('/cadastro', function (Request $request) {
         'name' => $data['name'],
         'email' => $data['email'],
         'password' => bcrypt($data['password']),
+        'endereco' => $data['endereco'],
+        'cidade' => $data['cidade'],
+        'estado' => $data['estado'],
+        'pais' => $data['pais'],
+        'telefone' => $data['telefone']
     ]);
     $user->token = $user->createToken($user->email)->accessToken;
 
@@ -62,58 +71,3 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:api')->put('/perfil', function (Request $request) {
-    $user = $request->user();
-    $data = $request->all();
-
-    if (isset($data['password'])) {
-        $validacao = Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-        if ($validacao->fails()) {
-            return $validacao->errors();
-        }
-        $user->password = bcrypt($data['password']);
-    
-    } else {
-        $validacao = Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-        ]);
-        if ($validacao->fails()) {
-            return $validacao->errors();
-        }
-        $user->name = $data['name'];
-        $user->email = $data['email'];
-    }
-    
-    if (isset($data['imagem'])) {
-        $time = time();
-        $diretorioPai = 'perfils';
-        $diretorioImagem = $diretorioPai.DIRECTORY_SEPARATOR.'perfil_id'.$user->id;
-        $extensao = substr($data['imagem'], 11, strpos($data['imagem'], ';') - 11);
-        $urlImagem = $diretorioImagem.DIRECTORY_SEPARATOR.$time.'.'.$extensao;
-        
-        $file = str_replace('data:image/'.$extensao.';base64,', '', $data['imagem']);
-        $file = base64_decode($file);
-        
-        if(!file_exists($diretorioPai)) {
-            mkdir($diretorioPai, 0700);
-        }
-        if(!file_exists($diretorioImagem)) {
-            mkdir($diretorioImagem, 0700);
-        }
-
-        file_put_contents($urlImagem, $file);
-        
-        $user->imagem = $urlImagem;
-    }
-
-    $user->save();
-
-    $user->imagem = asset($user->imagem);
-    $user->token = $user->createToken($user->email)->accessToken;
-    return $user;
-});
