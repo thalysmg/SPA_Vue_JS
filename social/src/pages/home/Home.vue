@@ -4,12 +4,11 @@
     <span slot="menu-esquerdo">
       <div class="row valign-wrapper">
         <grid-vue tamanho="4">
-          <img src="https://materializecss.com/images/yuna.jpg" alt="" class="circle responsive-img"> <!-- notice the "circle" class -->
+          <img v-bind:src="usuario.imagem" v-bind:alt="usuario.name" class="circle responsive-img"> <!-- notice the "circle" class -->
         </grid-vue>
         <grid-vue tamanho="8">
           <span class="black-text">
-            <h5>Maria Joana</h5>
-            Add the "circle" class to it to make it appear circular.
+            <h5>{{usuario.name}}</h5>
           </span>
         </grid-vue>
       </div>
@@ -45,16 +44,23 @@ import SiteTemplate from '@/templates/SiteTemplate'
 export default {
     name: 'Home',
     components: {
-	  CardConteudoVue,
-    CardDetalheVue,
-    GridVue,
-    PublicarConteudoVue,
-    SiteTemplate
+      CardConteudoVue,
+      CardDetalheVue,
+      GridVue,
+      PublicarConteudoVue,
+      SiteTemplate
     },
   	data () {
     	return {
-    	}
-  	}
+        usuario: false
+      }
+    },
+    created() {
+      let usuarioAux = sessionStorage.getItem('usuario')
+      if (usuarioAux) {
+        this.usuario = JSON.parse(usuarioAux);
+      }
+    }
 }
 </script>
 
