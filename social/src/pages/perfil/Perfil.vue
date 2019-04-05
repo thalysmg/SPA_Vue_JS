@@ -79,7 +79,7 @@ export default {
         imagem: this.imagem,
         password: this.password,
         password_confirmation: this.password_confirmation
-      },{"headers":{"authorization":"Bearer " +this.usuario.token}})
+      },{"headers":{"authorization":"Bearer " + this.usuario.token}})
       .then(response => {
         if (response.data.token) {
           console.log(response.data);

@@ -3,25 +3,48 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Auth;
+use  Auth;
 use App\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class UsuarioController extends Controller {
     
-    public function login(Request $request) {
+    public function cadastrar(Request $request) {
         $data = $request->all();
 
+        $validacao = Validator::make($data, [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+    
+        if ($validacao->fails()) {
+            return $validacao->errors();
+        }
+        $imagem = "/perfils/images.png";
+    
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'imagem' => $imagem
+        ]);
+        $user->token = $user->createToken($user->email)->accessToken;
+        $user->imagem = asset($user->imagem);
+    
+        return $user;
+    }
+
+    public function login(Request $request) {
+        $data = $request->all();
         $validacao = Validator::make($data, [
             'email' => 'required|string|email|max:255',
             'password' => 'required|string',
         ]);
-
         if ($validacao->fails()) {
             return $validacao->errors();
         }
-
         if (Auth::attempt(['email'=> $data['email'], 'password'=> $data['password']])) {
             $user = auth()->user();
             $user->token = $user->createToken($user->email)->accessToken;
@@ -31,42 +54,11 @@ class UsuarioController extends Controller {
             return ['status' => false];
         }
     }
-
-    public function cadastro(Request $request) {
-        $data = $request->all();
-        $validacao = Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        if ($validacao->fails()) {
-            return $validacao->errors();
-        }
-
-        $imagem = "/perfils/padrao.png";
-
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-            'imagem' => $imagem   
-        ]);
-        $user->token = $user->createToken($user->email)->accessToken;
-        $user->imagem = asset($user->imagem);
-
-        return $user;
-    }
-
-    public function user(Request $request) {
-        return $request->user();
-    }
-
-    public function perfil(Request $request) {
+    public function atualizarPerfil(Request $request) {
         $user = $request->user();
         $data = $request->all();
-
-        if (isset($data['password'])) {
+        
+        if(isset($data['password'])) {    
             $validacao = Validator::make($data, [
                 'name' => 'required|string|max:255',
                 'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
@@ -82,14 +74,15 @@ class UsuarioController extends Controller {
                 'name' => 'required|string|max:255',
                 'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             ]);
+            
             if ($validacao->fails()) {
                 return $validacao->errors();
             }
-            $user->name = $data['name'];
-            $user->email = $data['email'];
         }
+        $user->name = $data['name'];
+        $user->email = $data['email']; 
         
-        if (isset($data['imagem'])) {
+        if(isset($data['imagem'])) {
 
             Validator::extend('base64image', function($attribute, $value, $parameters, $validator) {
                 $explode = explode(',', $value);
@@ -108,7 +101,7 @@ class UsuarioController extends Controller {
                 if (!in_array($format, $allow)) {
                     return false;
                 }
-                if (!preg_match('%^[a-zA-Z0-9/+]*={0,2}$%', $explode[1])) {
+                if(!preg_match('%^[a-zA-Z0-9/+]*={0,2}s%', $explode[1])) {
                     return false;
                 }
                 return true;
@@ -116,8 +109,8 @@ class UsuarioController extends Controller {
 
             $validacao = Validator::make($data, [
                 'imagem' => 'base64image',
-                
             ], ['base64image'=>'Imagem inválida']);
+            
             if ($validacao->fails()) {
                 return $validacao->errors();
             }
@@ -125,18 +118,20 @@ class UsuarioController extends Controller {
             $time = time();
             $diretorioPai = 'perfils';
             $diretorioImagem = $diretorioPai.DIRECTORY_SEPARATOR.'perfil_id'.$user->id;
-            $extensao = substr($data['imagem'], 11, strpos($data['imagem'], ';') - 11);
-            $urlImagem = $diretorioImagem.DIRECTORY_SEPARATOR.$time.'.'.$extensao;
             
-            $file = str_replace('data:image/'.$extensao.';base64,', '', $data['imagem']);
+            $ext = substr($data['imagem'], 11, strpos($data['imagem'], ';') - 11);
+            
+            $urlImagem = $diretorioImagem.DIRECTORY_SEPARATOR.$time.'.'.$ext;
+            
+            $file = str_replace('data:image/'.$ext.';base64,', '', $data['imagem']);
             $file = base64_decode($file);
-            
+
             if (!file_exists($diretorioPai)) {
                 mkdir($diretorioPai, 0700);
             }
 
             if ($user->imagem) {
-                if (file_exists($user->imagem)) {
+                if(file_exists($user->imagem)) {
                     unlink($user->imagem);
                 }
             }
@@ -144,7 +139,6 @@ class UsuarioController extends Controller {
             if(!file_exists($diretorioImagem)) {
                 mkdir($diretorioImagem, 0700);
             }
-
             file_put_contents($urlImagem, $file);
             
             $user->imagem = $urlImagem;
@@ -154,6 +148,10 @@ class UsuarioController extends Controller {
 
         $user->imagem = asset($user->imagem);
         $user->token = $user->createToken($user->email)->accessToken;
+
         return $user;
+    }
+    public function getUsuario(Request $request) {
+        return $request->user();
     }
 }

@@ -1,5 +1,9 @@
 <?php
 
+use Illuminate\Http\Request;
+use App\User;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -11,10 +15,10 @@
 |
 */
 
-Route::post('/cadastro', "UsuarioController@cadastro");
+Route::middleware('auth:api')->get('/usuario', 'UsuarioController@getUsuario');
 
-Route::post('/login', "UsuarioController@login");
+Route::post('/cadastro', 'UsuarioController@cadastrar');
 
-Route::middleware('auth:api')->get('/user', "UsuarioController@user");
+Route::post('/login', 'UsuarioController@login');
 
-Route::middleware('auth:api')->put('/perfil', "UsuarioController@perfil");
+Route::middleware('auth:api')->put('/perfil', 'UsuarioController@atualizarPerfil');

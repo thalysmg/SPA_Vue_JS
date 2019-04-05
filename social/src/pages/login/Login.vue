@@ -46,7 +46,7 @@ export default {
           this.$router.push('/')
         } else if (response.data.status == false) {
           console.log('Senha ou email incorreto!')
-          alert('Login inválido')
+          alert('Login ou senha inválido')
         } else {
           console.log('erros de validação')
           let erros = '';

@@ -8,7 +8,7 @@
         </grid-vue>
         <grid-vue tamanho="8">
           <span class="black-text">
-            <h5>{{usuario.name}}</h5>
+            <h4>{{usuario.name}}</h4>
           </span>
         </grid-vue>
       </div>
@@ -18,8 +18,8 @@
       <publicar-conteudo-vue/>
       
       <card-conteudo-vue 
-      perfil="https://materializecss.com/images/yuna.jpg" 
-      nome="Maria Joana" 
+      :perfil="usuario.imagem" 
+      :nome="usuario.name" 
       data="29/12/18 22:00"
       >
       <card-detalhe-vue 
