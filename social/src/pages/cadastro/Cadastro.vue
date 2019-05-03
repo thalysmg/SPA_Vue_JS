@@ -22,7 +22,6 @@
 
 <script>
 import LoginTemplate from '@/templates/LoginTemplate'
-import axios from 'axios'
 
 export default {
   name: 'Cadastro',
@@ -39,28 +38,27 @@ export default {
   },
   methods: {
     cadastro() {
-      axios.post('http://127.0.0.1:8000/api/cadastro', {
+      this.$http.post(this.$urlAPI + 'cadastro', {
         name: this.name,
         email: this.email,
         password: this.password,
         password_confirmation: this.password_confirmation
       })
       .then(response => {
-        if (response.data.token) {
+        if (response.data.status) {
           console.log('Cadastro realizado com sucesso')
-          sessionStorage.setItem('usuario', JSON.stringify(response.data));
+          sessionStorage.setItem('usuario', JSON.stringify(response.data.usuario));
           this.$router.push('/')
         
-        } else if (response.data.status == false) {
-          alert('Erro ao cadastrar! Tente novamente.')
-        
-        } else {
-          console.log('erros de validação')
+        } else if (response.data.status == false && response.data.validacao) {
           let erros = '';
-          for (let erro of Object.values(response.data)) {
+          for (let erro of Object.values(response.data.erros)) {
             erros += erro + " ";
           }
           alert(erros);
+
+        } else {
+          console.log('erros de validação')
         }
         console.log(response)
       })

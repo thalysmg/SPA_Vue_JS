@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
 use App\User;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use App\Conteudo;
+use App\Comentario;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -15,10 +14,53 @@ use Illuminate\Validation\Rule;
 |
 */
 
-Route::middleware('auth:api')->get('/usuario', 'UsuarioController@getUsuario');
-
 Route::post('/cadastro', 'UsuarioController@cadastrar');
-
 Route::post('/login', 'UsuarioController@login');
-
 Route::middleware('auth:api')->put('/perfil', 'UsuarioController@atualizarPerfil');
+
+Route::get('/testes', function() {
+    $user = User::find(17);
+    $user9 = User::find(9);
+    /* 
+    $user->conteudos()->create([
+        'titulo' => 'Conteúdo 2',
+        'texto' => "Meu segundo conteúdo na vida",
+        'imagem' => 'url da imagem',
+        'link' => 'Link',
+        'data' => '2019-05-02'
+    ]);
+    return $user->conteudos;
+    */
+    
+    /*
+    $user->amigos()->attach($user9->id);
+    $user->amigos()->detach($user9->id);
+    
+    $user->amigos()->toggle($user9->id);
+
+    return $user->amigos;
+    */
+
+    /*
+    $conteudo = Conteudo::find(1);
+    $user->curtidas()->toggle($conteudo->id);
+
+    return $conteudo->curtidas()->count(); 
+    */
+
+
+    /*
+    $conteudo = Conteudo::find(1);
+    $user->comentarios()->create([
+        'conteudo_id' => $conteudo->id, 
+        'texto' => "Meu primeiro comentário do meu primeiro conteúdo", 
+        'data'=> date('Y-m-d')
+    ]);
+    $user9->comentarios()->create([
+        'conteudo_id' => $conteudo->id, 
+        'texto' => "Meu segundo comentário do meu conteúdo", 
+        'data'=> date('Y-m-d')
+    ]);
+    return $conteudo->comentarios;
+    */
+});

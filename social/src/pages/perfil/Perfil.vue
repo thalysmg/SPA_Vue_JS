@@ -1,12 +1,10 @@
 <template>
   <site-template>
-    
     <span slot="menu-esquerdo">
       <img v-bind:src="usuario.imagem" class="responsive-img">
     </span>
 
     <span slot="principal">
-
         <h2>Perfil</h2>
         <input type="text" placeholder="Nome" v-model="name">
         <input type="text" placeholder="E-mail" v-model="email">
@@ -24,15 +22,12 @@
         <input type="password" placeholder="Senha" v-model="password">
         <input type="password" placeholder="Confirme sua senha" v-model="password_confirmation">
         <button class="btn" v-on:click="atualizarPerfil()">Atualizar</button>
-
     </span>
   </site-template>
-
 </template>
 
 <script>
 import SiteTemplate from '@/templates/SiteTemplate'
-import axios from 'axios'
 
 export default {
   name: 'Perfil',
@@ -73,7 +68,7 @@ export default {
     },
 
     atualizarPerfil() {
-      axios.put('http://127.0.0.1:8000/api/perfil', {
+      this.$http.put(this.$urlAPI + 'perfil', {
         name: this.name,
         email: this.email,
         imagem: this.imagem,
@@ -81,14 +76,14 @@ export default {
         password_confirmation: this.password_confirmation
       },{"headers":{"authorization":"Bearer " + this.usuario.token}})
       .then(response => {
-        if (response.data.token) {
+        if (response.data.status) {
           console.log(response.data);
-          this.usuario = response.data;
-          sessionStorage.setItem('usuario', JSON.stringify(response.data));
+          this.usuario = response.data.usuario;
+          sessionStorage.setItem('usuario', JSON.stringify(this.usuario));
           alert("Perfil atualizado!");
         
-        } else {
-          console.log("Erros de validação");
+        } else if (response.data.status == false && response.data.validacao) {
+          // console.log("Erros de validação");
           let erros = '';
           for (let erro of Object.values(response.data)) {
             erros += erro + " ";
@@ -108,17 +103,17 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h1, h2 {
-  	font-weight: normal;
+  font-weight: normal;
 }
 ul {
-  	list-style-type: none;
-  	padding: 0;
+  list-style-type: none;
+  padding: 0;
 }
 li {
-  	display: inline-block;
-  	margin: 0 10px;
+  display: inline-block;
+  margin: 0 10px;
 }
 a {
-  	color: #42b983;
+  color: #42b983;
 }
 </style>

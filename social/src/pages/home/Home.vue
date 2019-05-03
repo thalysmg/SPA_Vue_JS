@@ -1,6 +1,5 @@
 <template>
   <site-template>
-
     <span slot="menu-esquerdo">
       <div class="row valign-wrapper">
         <grid-vue tamanho="4">
