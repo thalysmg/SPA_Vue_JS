@@ -16,11 +16,27 @@ use App\Comentario;
 
 Route::post('/cadastro', 'UsuarioController@cadastrar');
 Route::post('/login', 'UsuarioController@login');
+
 Route::middleware('auth:api')->put('/perfil', 'UsuarioController@atualizarPerfil');
 
+Route::middleware('auth:api')->post('/conteudo/adicionar', 'ConteudoController@adicionar');
+Route::middleware('auth:api')->get('/conteudo/listar', 'ConteudoController@listar');
+
 Route::get('/testes', function() {
-    $user = User::find(17);
-    $user9 = User::find(9);
+    // $user = User::find(17);
+    // $user9 = User::find(9);
+
+    //deleta todas as instâncias de uma entidade
+    /*
+    $conteudos = Conteudo::all();
+    $users = User::all();
+    
+    foreach ($users as $key => $value) {
+        $value->delete();
+    }
+    */
+
+
     /* 
     $user->conteudos()->create([
         'titulo' => 'Conteúdo 2',

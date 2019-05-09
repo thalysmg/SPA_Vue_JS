@@ -42,11 +42,11 @@ export default {
     }
   },
   created() {
-    let usuarioAux = sessionStorage.getItem('usuario')
+    let usuarioAux = this.$store.getters.getUsuario
     if (usuarioAux) {
-      this.usuario = JSON.parse(usuarioAux);
-      this.name = this.usuario.name;
-      this.email = this.usuario.email;
+      this.usuario = usuarioAux
+      this.name = this.usuario.name
+      this.email = this.usuario.email
     }
   },
   components: {
@@ -74,21 +74,25 @@ export default {
         imagem: this.imagem,
         password: this.password,
         password_confirmation: this.password_confirmation
-      },{"headers":{"authorization":"Bearer " + this.usuario.token}})
+      },{
+        "headers":{ 
+          "authorization":"Bearer " + this.$store.getters.getToken
+      }})
       .then(response => {
         if (response.data.status) {
           console.log(response.data);
           this.usuario = response.data.usuario;
+          this.$store.commit('setUsuario', response.data.usuario)
           sessionStorage.setItem('usuario', JSON.stringify(this.usuario));
           alert("Perfil atualizado!");
         
         } else if (response.data.status == false && response.data.validacao) {
           // console.log("Erros de validação");
-          let erros = '';
+          let erros = ''
           for (let erro of Object.values(response.data)) {
-            erros += erro + " ";
+            erros += erro + " "
           }
-          alert(erros);
+          alert(erros)
         }  
       })
       .catch(error => {

@@ -16,17 +16,18 @@
     <span slot="principal">
       <publicar-conteudo-vue/>
       
-      <card-conteudo-vue 
-      :perfil="usuario.imagem" 
-      :nome="usuario.name" 
-      data="29/12/18 22:00"
+      <card-conteudo-vue v-for="item in listarConteudos"
+        :key="item.id"
+        :perfil="item.user.imagem" 
+        :nome="item.user.name" 
+        :data="item.data"
       >
-      <card-detalhe-vue 
-        img="http://materializecss.com/images/sample-1.jpg" 
-        titulo="" 
-        txt="I am a very simple card. I am good at containing small bits of information.
-            I am convenient because I require little markup to use effectively."
-      />
+        <card-detalhe-vue 
+          :img="item.imagem" 
+          :titulo="item.titulo" 
+          :txt="item.texto"
+          :link="item.link"
+        />
       </card-conteudo-vue>
     </span>
   </site-template>
@@ -41,25 +42,46 @@ import PublicarConteudoVue from '@/components/social/PublicarConteudoVue'
 import SiteTemplate from '@/templates/SiteTemplate'
 
 export default {
-    name: 'Home',
-    components: {
-      CardConteudoVue,
-      CardDetalheVue,
-      GridVue,
-      PublicarConteudoVue,
-      SiteTemplate
-    },
-  	data () {
-    	return {
-        usuario: false
-      }
-    },
-    created() {
-      let usuarioAux = sessionStorage.getItem('usuario')
-      if (usuarioAux) {
-        this.usuario = JSON.parse(usuarioAux);
-      }
+  name: 'Home',
+  components: {
+    CardConteudoVue,
+    CardDetalheVue,
+    GridVue,
+    PublicarConteudoVue,
+    SiteTemplate
+  },
+  data () {
+    return {
+      usuario: false
     }
+  },
+  created() {
+    let usuarioAux = this.$store.getters.getUsuario
+    if (usuarioAux) {
+      this.usuario = usuarioAux;
+    }
+
+    this.$http.get(this.$urlAPI + 'conteudo/listar', {
+      "headers": {
+        "authorization": "Bearer " + this.$store.getters.getToken
+      }
+    })
+    .then(response => {
+      console.log(response)
+      if (response.data.status) {
+        this.$store.commit('setConteudosLinhaTempo', response.data.conteudos.data)
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      alert("Erro! Tente novamente mais tarde!")
+    })
+  },
+  computed: {
+    listarConteudos() {
+      return this.$store.getters.getConteudosLinhaTempo
+    }
+  }
 }
 </script>
 

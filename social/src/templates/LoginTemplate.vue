@@ -60,15 +60,10 @@ export default {
   },
   created() {
     console.log("created()")
-    let usuarioAux = sessionStorage.getItem('usuario')
+    let usuarioAux = this.$store.getters.getUsuario
     if (usuarioAux) {
+      this.usuario = this.$store.getters.getUsuario
       this.$router.push('/')
-    }
-  },
-  methods: {
-    sair() {
-      sessionStorage.clear();
-      this.usuario = false;
     }
   }
 }
