@@ -16,14 +16,27 @@ use App\Comentario;
 
 Route::post('/cadastro', 'UsuarioController@cadastrar');
 Route::post('/login', 'UsuarioController@login');
-
 Route::middleware('auth:api')->put('/perfil', 'UsuarioController@atualizarPerfil');
+Route::middleware('auth:api')->post('/usuario/amigo', 'UsuarioController@amigo');
+Route::middleware('auth:api')->get('/usuario/listaamigos', 'UsuarioController@listaamigos');
+Route::middleware('auth:api')->get('/usuario/listaamigospagina/{id}', 'UsuarioController@listaamigospagina');
+
 
 Route::middleware('auth:api')->post('/conteudo/adicionar', 'ConteudoController@adicionar');
 Route::middleware('auth:api')->get('/conteudo/listar', 'ConteudoController@listar');
+Route::middleware('auth:api')->put('/conteudo/curtir/{id}', 'ConteudoController@curtir');
+Route::middleware('auth:api')->put('/conteudo/comentar/{id}', 'ConteudoController@comentar');
+Route::middleware('auth:api')->get('/conteudo/pagina/listar/{id}', 'ConteudoController@pagina');
 
 Route::get('/testes', function() {
-    // $user = User::find(17);
+    // $user = User::find(20);
+    // // dd(Conteudo::all());
+    // $conteudo = Conteudo::find(19);
+    // $user->comentarios()->create([
+    //     'conteudo_id' => $conteudo->id, 
+    //     'texto' => "Meu primeiro comentário do meu primeiro conteúdo", 
+    //     'data'=> date('Y-m-d H:i:s')
+    // ]);
     // $user9 = User::find(9);
 
     //deleta todas as instâncias de uma entidade

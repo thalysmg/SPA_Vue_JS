@@ -5,13 +5,55 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Conteudo;
 use Illuminate\Support\Facades\Validator;
+use App\User;
 
 class ConteudoController extends Controller
 {
-    public function listar(Request $request) 
+    public function listar(Request $request)
     {
+        $user = $request->user();
         $conteudos = Conteudo::with('user')->orderBy('data', 'DESC')->paginate(5);
+        
+        foreach ($conteudos as $key => $conteudo) {
+            $conteudo->total_curtidas = $conteudo->curtidas()->count();
+            $conteudo->comentarios = $conteudo->comentarios()->with('user')->get();
+            $curtiu = $user->curtidas()->find($conteudo->id);
+            
+            if ($curtiu) {
+                $conteudo->curtiu_conteudo = true;
+            } else {
+                $conteudo->curtiu_conteudo = false;
+            }
+        }
+
         return ['status'=>true, "conteudos"=>$conteudos];
+    }
+
+    public function pagina($id, Request $request)
+    {
+        $donoDaPagina = User::find($id);
+        
+        if ($donoDaPagina) {
+            $conteudos = $donoDaPagina->conteudos()->with('user')->orderBy('data', 'DESC')->paginate(5);
+            $user = $request->user();
+                       
+            foreach ($conteudos as $key => $conteudo) {
+                $conteudo->total_curtidas = $conteudo->curtidas()->count();
+                $conteudo->comentarios = $conteudo->comentarios()->with('user')->get();
+                $curtiu = $user->curtidas()->find($conteudo->id);
+                
+                if ($curtiu) {
+                    $conteudo->curtiu_conteudo = true;
+                } else {
+                    $conteudo->curtiu_conteudo = false;
+                }
+            }
+            return ['status'=>true, "conteudos"=>$conteudos, "dono"=>$donoDaPagina];
+        
+        } else {
+            return ['status'=>false, "erro"=>"Usuário não existente"];
+        }
+
     }
 
     public function adicionar(Request $request) 
@@ -40,14 +82,42 @@ class ConteudoController extends Controller
 
         $conteudos = Conteudo::with('user')->orderBy('data', 'DESC')->paginate(5);
         return ['status'=>true, "conteudos"=>$conteudos];
+    }
 
-        // $user->conteudos()->create([
-        //     'titulo' => 'Conteúdo 2',
-        //     'texto' => "Meu segundo conteúdo na vida",
-        //     'imagem' => 'url da imagem',
-        //     'link' => 'Link',
-        //     'data' => '2019-05-02'
-        // ]);
-        // return $user->conteudos;
+    public function curtir($id, Request $request)
+    {   
+        $conteudo = Conteudo::find($id);
+        if ($conteudo) {
+            $user = $request->user();
+            $user->curtidas()->toggle($conteudo->id);
+    
+            // return $conteudo->curtidas()->count(); 
+            return [
+                'status'=>true, 
+                "curtidas"=>$conteudo->curtidas()->count(), 
+                'lista' => $this->listar($request)
+            ];
+        } else {
+            return ['status'=>false, "erro"=>"Conteúdo não existe"];
+        }
+    }
+
+    public function comentar($id, Request $request)
+    {   
+        $conteudo = Conteudo::find($id);
+        if ($conteudo) {
+            $user = $request->user();
+            $user->comentarios()->create([
+                'conteudo_id' => $conteudo->id, 
+                'texto' => $request->texto, 
+                'data'=> date('Y-m-d H:i:s')
+            ]);
+            return [
+                'status'=>true,  
+                'lista' => $this->listar($request)
+            ];
+        } else {
+            return ['status'=>false, "erro"=>"Conteúdo não existe"];
+        }
     }
 }

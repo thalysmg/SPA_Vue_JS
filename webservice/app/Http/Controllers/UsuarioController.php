@@ -155,4 +155,37 @@ class UsuarioController extends Controller {
 
         return ['status'=>true, "usuario"=>$user];
     }
+
+    public function amigo(Request $request) 
+    {
+        $user = $request->user();
+        $amigo = User::find($request->id);
+
+        if ($amigo && ($user->id != $amigo->id)) {
+            $user->amigos()->toggle($amigo->id);
+            return ['status'=>true, "amigos"=>$user->amigos];
+        } else {
+            return ['status'=>false, 'erro'=>'Não foi possível adicionar amigo!'];
+        }
+    }
+    public function listaamigos(Request $request) 
+    {
+        $user = $request->user();
+        if ($user) {
+            return ['status'=>true, "amigos"=>$user->amigos];
+        } else {
+            return ['status'=>false, 'erro'=>'Esse usuário não existe!'];
+        }
+    }
+
+    public function listaamigospagina($id, Request $request) 
+    {
+        $user = User::find($id);
+        $userLogado = $request->user();
+        if ($user) {
+            return ['status'=>true,"amigos"=>$user->amigos, "amigoslogado"=>$userLogado->amigos];
+        } else {
+            return ['status'=>false, 'erro'=>'Esse usuário não existe'];
+        }
+    }
 }
