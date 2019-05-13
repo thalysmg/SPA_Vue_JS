@@ -64,7 +64,13 @@ export default {
   },
   methods: {
     curtir(id) {
-      this.$http.put(this.$urlAPI + 'conteudo/curtir/' + id, {}, {
+      let urlAtual = ''
+      if (this.$route.name == 'Pagina') {
+        urlAtual = 'conteudo/curtirpagina/'
+      } else if (this.$route.name == 'Home') {
+        urlAtual = 'conteudo/curtir/'
+      }
+      this.$http.put(this.$urlAPI + urlAtual + id, {}, {
         "headers": {
           "authorization": "Bearer " + this.$store.getters.getToken
         }
@@ -90,10 +96,16 @@ export default {
       this.exibirComentarios = !this.exibirComentarios
     },
     comentar(id) {
+      let urlAtual = ''
+      if (this.$route.name == 'Pagina') {
+        urlAtual = 'conteudo/comentarpagina/'
+      } else if (this.$route.name == 'Home') {
+        urlAtual = 'conteudo/comentar/'
+      }
       if (!this.textoComentario) {
         return
       }
-      this.$http.put(this.$urlAPI + 'conteudo/comentar/' + id, {texto:this.textoComentario}, {
+      this.$http.put(this.$urlAPI + urlAtual + id, {texto:this.textoComentario}, {
         "headers": {
           "authorization": "Bearer " + this.$store.getters.getToken
         }

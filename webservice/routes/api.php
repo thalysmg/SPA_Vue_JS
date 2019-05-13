@@ -25,10 +25,21 @@ Route::middleware('auth:api')->get('/usuario/listaamigospagina/{id}', 'UsuarioCo
 Route::middleware('auth:api')->post('/conteudo/adicionar', 'ConteudoController@adicionar');
 Route::middleware('auth:api')->get('/conteudo/listar', 'ConteudoController@listar');
 Route::middleware('auth:api')->put('/conteudo/curtir/{id}', 'ConteudoController@curtir');
+Route::middleware('auth:api')->put('/conteudo/curtirpagina/{id}', 'ConteudoController@curtirpagina');
 Route::middleware('auth:api')->put('/conteudo/comentar/{id}', 'ConteudoController@comentar');
+Route::middleware('auth:api')->put('/conteudo/comentarpagina/{id}', 'ConteudoController@comentarpagina');
 Route::middleware('auth:api')->get('/conteudo/pagina/listar/{id}', 'ConteudoController@pagina');
 
 Route::get('/testes', function() {
+
+    // $user = $request->user();
+    $user = User::find(20);
+    $amigos = $user->amigos()->pluck('id');
+    $amigos->push($user->id);
+    $conteudos = Conteudo::whereIn('user_id', $amigos)->with('user')->orderBy('data', 'DESC')->paginate(5);
+
+    dd($conteudos);
+
     // $user = User::find(20);
     // // dd(Conteudo::all());
     // $conteudo = Conteudo::find(19);

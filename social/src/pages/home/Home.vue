@@ -23,6 +23,12 @@
         <li>{{amigo.name}}</li>
       </router-link>
       <li v-if="!amigos.length">Nenhum Usuário</li>
+      
+      <h3>Seguidores</h3>
+      <router-link v-for="seguidor in seguidores" :key="seguidor.id" :to="'/pagina/' + seguidor.id + '/' + $slug(seguidor.name, {lower: true})">
+        <li>{{seguidor.name}}</li>
+      </router-link>
+      <li v-if="!seguidores.length">Nenhum Usuário</li>
     </span>
 
     <span slot="principal">
@@ -79,7 +85,8 @@ export default {
       usuario: {imagem: '', name: ''},
       urlProximaPagina: null,
       pararScroll: false,
-      amigos: []
+      amigos: [],
+      seguidores: []
     }
   },
   created() {
@@ -105,6 +112,7 @@ export default {
             if (response.data.status) {
               console.log(response.data)
               this.amigos = response.data.amigos
+              this.seguidores = response.data.seguidores
             } else {
               alert(response.data.erro)
             }
