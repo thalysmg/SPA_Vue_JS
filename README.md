@@ -1,2 +1,2 @@
 # SPA_Vue_JS
-Repository containing the code from Udemy's course "SPA com Vue JS"
+Repository containing the project developed in Udemy's course "SPA with VueJS"
